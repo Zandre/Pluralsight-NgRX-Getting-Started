@@ -1,4 +1,4 @@
-import { createAction, createFeatureSelector, createReducer, createSelector, on } from "@ngrx/store";
+import { createFeatureSelector, createReducer, createSelector, on } from "@ngrx/store";
 import * as AppState from '../../state/app.state';
 import * as ProductActions from './product.actions';
 
@@ -116,5 +116,35 @@ export const productReducer = createReducer<ProductState>(
             ...state,
             error: action.error
         }
-    })
+    }),
+    // After a create, the currentProduct is the new product.
+    on(ProductActions.createProductSuccess, (state, action): ProductState => {
+        return {
+          ...state,
+          products: [...state.products, action.product],
+          currentProductId: action.product.id,
+          error: ''
+        };
+      }),
+      on(ProductActions.createProductFailure, (state, action): ProductState => {
+        return {
+          ...state,
+          error: action.error
+        };
+      }),
+      // After a delete, the currentProduct is null.
+      on(ProductActions.deleteProductSuccess, (state, action): ProductState => {
+        return {
+          ...state,
+          products: state.products.filter(product => product.id !== action.productId),
+          currentProductId: null,
+          error: ''
+        };
+      }),
+      on(ProductActions.deleteProductFailure, (state, action): ProductState => {
+        return {
+          ...state,
+          error: action.error
+        };
+      })    
 );
